@@ -16,9 +16,9 @@ class CovidDataPuller:
     def get_and_parse_csvs(self):
         total_parsed_array = []
         for itemLabel in self.urls:
-            response = requests.get(urls[itemLabel])
+            response = requests.get(self.urls[itemLabel])
             if response.status_code == 200:
-                print(f"Successfully downloaded \"{itemLabel}\" file from: {urls[itemLabel]}")
+                print(f"Successfully downloaded \"{itemLabel}\" file from: {self.urls[itemLabel]}")
                 _parsed_csv_dict_array = self.parse_csv(response, itemLabel)
                 total_parsed_array += _parsed_csv_dict_array
         return total_parsed_array
@@ -48,7 +48,6 @@ class CovidDataPuller:
                     row_date_obj = self.parse_date_string(_melted_row["Date"])
                     day_before_row_date_obj = row_date_obj - timedelta(days=1)
                     day_before_string = self.date_to_string(day_before_row_date_obj)
-                    print(f"DATE: {self.date_to_string(row_date_obj)}, Yesterday: {self.date_to_string(day_before_row_date_obj)}")
                     if day_before_string not in row:
                         _melted_row["Type"] = label
                         _melted_row["Cases"] = row[_column]
@@ -70,10 +69,21 @@ class CovidDataPuller:
 
 
 
-urls = {"Confirmed": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", \
+global_urls = {"Confirmed": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", \
         "Deaths": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"}
 
-covidData = CovidDataPuller(urls)
-parsed_csv_dict = covidData.get_and_parse_csvs()
-covidData.write_csv(parsed_csv_dict)
+covidGlobalData = CovidDataPuller(global_urls, "time_series_covid_global.csv")
+parsed_csv_dict_1 = covidGlobalData.get_and_parse_csvs()
+covidGlobalData.write_csv(parsed_csv_dict_1)
+
+unified_urls = {
+    "Confirmed": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv", \
+    "Deaths": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv", \
+    "Recovered": "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv" }
+
+covidUnifiedData = CovidDataPuller(unified_urls, "time_series_covid.csv")
+parsed_csv_dict_2 = covidUnifiedData.get_and_parse_csvs()
+covidUnifiedData.write_csv(parsed_csv_dict_2)
+
+
 
