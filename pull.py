@@ -10,9 +10,6 @@ class CovidDataPuller:
         self.urls = urls
         self.output = output
 
-    def read_input(self):
-        return (line for line in csv.DictReader(open(self.input_file)))
-
     def get_and_parse_csvs(self):
         total_parsed_array = []
         for itemLabel in self.urls:
